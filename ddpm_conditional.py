@@ -109,9 +109,13 @@ class Diffusion:
 
     def one_epoch(self, train=True):
         avg_loss = 0.
-        if train: self.model.train()
-        else: self.model.eval()
-        pbar = progress_bar(self.train_dataloader, leave=False)
+        total_samples = 0  # Track the total number of samples
+        if train:
+            self.model.train()
+            pbar = progress_bar(self.train_dataloader, leave=False)
+        else:
+            self.model.eval()
+            pbar = progress_bar(self.val_dataloader, leave=False)
         for i, (images, labels) in enumerate(pbar):
             with torch.autocast("cuda") and (torch.inference_mode() if not train else torch.enable_grad()):
                 images = images.to(self.device)
@@ -122,13 +126,15 @@ class Diffusion:
                     labels = None
                 predicted_noise = self.model(x_t, t, labels)
                 loss = self.mse(noise, predicted_noise)
-                avg_loss += loss
+                avg_loss += loss.item() * labels.shape[0]  # Accumulate the loss multiplied by the batch size
+                total_samples += labels.shape[0]  # Increment the total number of samples
             if train:
                 self.train_step(loss)
                 wandb.log({"train_mse": loss.item(),
-                            "learning_rate": self.scheduler.get_last_lr()[0]})
-            pbar.comment = f"MSE={loss.item():2.3f}"        
-        return avg_loss.mean().item()
+                           "learning_rate": self.scheduler.get_last_lr()[0]})
+            pbar.comment = f"MSE={loss.item():2.3f}"
+        avg_loss /= total_samples  # Divide the accumulated loss by the total number of samples
+        return avg_loss
 
     def log_images(self):
         "Log images to wandb and save them to disk"
