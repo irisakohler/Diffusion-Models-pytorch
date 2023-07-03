@@ -85,6 +85,7 @@ class Diffusion:
                 t = (torch.ones(n) * i).long().to(self.device)
                 predicted_noise = model(x, t, labels)
                 if cfg_scale > 0:
+                    # classifier-free guidance
                     uncond_predicted_noise = model(x, t, None)
                     predicted_noise = torch.lerp(uncond_predicted_noise, predicted_noise, cfg_scale)
                 alpha = self.alpha[t][:, None, None, None]
@@ -122,6 +123,7 @@ class Diffusion:
                 labels = labels.to(self.device)
                 t = self.sample_timesteps(images.shape[0]).to(self.device)
                 x_t, noise = self.noise_images(images, t)
+                # sample unconditionally for classifier-free guidance with p_uncond = 0.1
                 if np.random.random() < 0.1:
                     labels = None
                 predicted_noise = self.model(x_t, t, labels)
