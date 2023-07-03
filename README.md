@@ -13,6 +13,45 @@ This is an easy-to-understand implementation of diffusion models within 100 line
 
 <hr>
 
+## Getting started
+### With Docker
+
+First pull the pytorch container:
+```
+docker pull nvcr.io/nvidia/pytorch:23.02-py3
+```
+Check [here](https://docs.nvidia.com/deeplearning/frameworks/pytorch-release-notes/rel-23-02.html) 
+that your system fulfills the driver requirements of this version. If not, 
+then you will need to use a lower version of the pytorch container 
+(and then also modify the first line of the Dockerfile accordingly).
+
+Next, build the docker container: 
+```
+docker build -t diffusion-models-pytorch:1.0 -f Dockerfile .
+```
+
+Finally, run the container:
+```
+docker run --shm-size=1g --ulimit stack=67108864 --gpus all -v ${PWD}:/diffusion-models-pytorch -it diffusion-models-pytorch:1.0 bash
+```
+
+### With conda
+
+Create the conda environment:
+
+```
+conda env create -f environment.yaml
+```
+Again, check that your system satisfies the requirements for the conda version specified in the environment file.
+If not, change the channel (`"nvidia/label/cuda-11.8.0"`) and the version of pytorch-cuda (`pytorch-cuda=11.8`).
+
+Activate the environment:
+
+```
+conda activate diffusion-models-pytorch
+```
+
+
 ## Train a Diffusion Model on your own data:
 ### Unconditional Training
 1. (optional) Configure Hyperparameters in ```ddpm.py```
@@ -52,4 +91,26 @@ This model was trained on [CIFAR-10 64x64](https://www.kaggle.com/datasets/joaop
 ```
 <hr>
 
-A more advanced version of this code can be found [here](https://github.com/tcapelle/Diffusion-Models-pytorch) by [@tcapelle](https://github.com/tcapelle). It introduces better logging, faster & more efficient training and other nice features and is also being followed by a nice [write-up](https://wandb.ai/capecape/train_sd/reports/Training-a-Conditional-Diffusion-model-from-scratch--VmlldzoyODMxNjE3).
+This version of the code includes some updates by 
+[@tcapelle](https://github.com/tcapelle). It introduces better logging, 
+faster & more efficient training and other nice features and is also 
+being followed by a nice [write-up](https://wandb.ai/capecape/train_sd/reports/Training-a-Conditional-Diffusion-model-from-scratch--VmlldzoyODMxNjE3).
+
+The updates regard the `ddpm_conditional.py` file and the jupyter notebooks, which were newly added.
+
+To get the datasets used in the jupyter notebooks, you need a kaggle account,
+and a kaggle API token (Settings -> Create new token).
+
+With docker, the login method via the kaggle.json file might not work, in that
+case you can add
+```
+import os
+os.environ["KAGGLE_USERNAME"] = "your_kaggle_username"
+os.environ["KAGGLE_KEY"] = "your_kaggle_api_key"
+```
+at the top of the code.
+
+If you would like to view the training results online in with your wandb account,
+you need a wandb API token (Settings -> scroll down to API keys -> create new key),
+and call `wandb.login()` in the python code or `wandb login` in the command line 
+before training.

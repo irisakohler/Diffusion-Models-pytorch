@@ -1,0 +1,24 @@
+name: diffusion-models-pytorch
+channels:
+  - pytorch
+  - "nvidia/label/cuda-11.8.0"
+  - defaults
+  - fastchan
+dependencies:
+  - python=3.8
+  - pip
+  - cuda-toolkit
+  - pytorch
+  - torchvision
+  - pytorch-cuda=11.8
+  - numpy
+  - fastai
+  - pip:
+    - kaggle
+    - wandb
+    - Pillow
+    - matplotlib
+    - fastdownload
+    - fastprogress
+    - fastcore
+    - tqdm
