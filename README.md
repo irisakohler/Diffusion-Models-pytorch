@@ -32,7 +32,7 @@ docker build -t diffusion-models-pytorch:1.0 -f Dockerfile .
 
 Finally, run the container:
 ```
-docker run --shm-size=1g --ulimit stack=67108864 --gpus all -v ${PWD}:/diffusion-models-pytorch -it diffusion-models-pytorch:1.0 bash
+docker run --shm-size=1g --ulimit stack=67108864 --gpus all -v ${PWD}:/diffusion-models-pytorch -w /diffusion-models-pytorch -it diffusion-models-pytorch:1.0 bash
 ```
 
 ### With conda
