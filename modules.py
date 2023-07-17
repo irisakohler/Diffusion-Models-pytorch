@@ -17,6 +17,9 @@ class EMA:
         for current_params, ma_params in zip(current_model.parameters(), ma_model.parameters()):
             old_weight, up_weight = ma_params.data, current_params.data
             ma_params.data = self.update_average(old_weight, up_weight)
+        for current_buffer, ma_buffer in zip(current_model.buffers(), ma_model.buffers()):
+            old_weight, up_weight = ma_buffer.data, current_buffer.data
+            ma_buffer.data = self.update_average(old_weight, up_weight)
 
     def update_average(self, old, new):
         if old is None:
